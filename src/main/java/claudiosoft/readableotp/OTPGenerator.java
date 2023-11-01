@@ -20,47 +20,49 @@ public class OTPGenerator {
         this.rand = new Random();
 
         //TODO rules should be externally configurable
+        //TODO score is not used by now
         rules = new LinkedList<>();
-        rules.add(new OTPRule("xxxxxx", "[0,9]", SCORE_3, PART_2));
-        rules.add(new OTPRule("xxxyyy", "[0,9]", "!", SCORE_2, PART_2));
-        rules.add(new OTPRule("xxyxxy", "[0,9]", "!", SCORE_2, PART_2));
-        rules.add(new OTPRule("xyyxyy", "[0,9]", "!", SCORE_2, PART_2));
-        rules.add(new OTPRule("xyxxyx", "[0,9]", "!", SCORE_2, PART_2));
-        rules.add(new OTPRule("xxyyxx", "[0,9]", "!", SCORE_2, PART_2));
-        rules.add(new OTPRule("xyyyyx", "[0,9]", "!", SCORE_2, PART_2));
-        rules.add(new OTPRule("xyzxyz", "[0,9]", "!", SCORE_2, PART_2));
+        rules.add(new OTPRule("xxxxxx", "0,9", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyzxyz", "0,9", "!", PART_2, SCORE_NONE));
         validate();
     }
 
     private void validate() {
-        BasicConsoleLogger.get().info("validating rules...");
-        //TODO avoid doubled schema; avoid invalid schema len; avoid schema with too much digit; avoid inconsistent rule's domain
+        BasicConsoleLogger.get().debug("validating rules...");
+        //TODO avoid doubled schema;
+        //avoid invalid schema len;
+        //avoid schema with too much digit;
+        //avoid inconsistent rule's domain...
 //        if (len%2 > 0 part == 2) {
 //                throw new POCException("")
 //            }
     }
 
-    public ROTP generate() {
-        //TODO by score too
+    public ROTP generate() throws POCException {
+        //TODO filter by score too
         int iRule = rand.nextInt(rules.size());
         OTPRule rule = rules.get(iRule);
 
-        int nDigits = 1;
-        if (rule.getSchema().contains("y")) {
-            nDigits++;
-        }
-        if (rule.getSchema().contains("z")) {
-            nDigits++;
-        }
+        int nDigits = rule.getDigits();
 
         // x domain
-        int xMin = Integer.parseInt(rule.getxRule().substring(3, 4));
-        int xMax = Integer.parseInt(rule.getxRule().substring(5, 6));
+        String[] domain = rule.getxRule().split(",");
+        if (domain.length != 2) {
+            throw new POCException("Invalid x domain");
+        }
+        int xMin = Integer.parseInt(domain[0]);
+        int xMax = Integer.parseInt(domain[1]);
         int x = xMin + rand.nextInt(xMax - xMin);
 
         int y = -1;
         if (nDigits > 1) { // y
-            if (rule.getyRule().equalsIgnoreCase("y!=")) {
+            if (rule.getyRule().equalsIgnoreCase("!")) {
                 y = x;
                 while (y == x) {
                     y = rand.nextInt(9);
@@ -72,7 +74,7 @@ public class OTPGenerator {
 
         int z = -1;
         if (nDigits > 2) { // z
-            if (rule.getyRule().equalsIgnoreCase("z!=")) {
+            if (rule.getyRule().equalsIgnoreCase("!")) {
                 z = y;
                 while (z == y || z == x) {
                     z = rand.nextInt(9);
@@ -90,7 +92,7 @@ public class OTPGenerator {
         String otpStr = rule.getSchema().toLowerCase().replace("x", xStr).replace("y", yStr).replace("z", zStr);
         int otp = Integer.parseInt(otpStr);
 
-        return new ROTP(otp, rule.getParts());
+        return new ROTP(otp, rule.getParts(), rule.getSchema());
     }
 
     public void overrideRules(List<OTPRule> rules) throws POCException {
@@ -98,6 +100,21 @@ public class OTPGenerator {
             throw new POCException("Invalid rule list");
         }
         this.rules = rules;
+        validate();
+    }
+
+    public int countMax() {
+        int nOtp = 0;
+        for (OTPRule rule : rules) {
+            int max = rule.getMaxOtp();
+            for (int iOtp = 0; iOtp < max; iOtp++) {
+                String candidateOtp = String.format("%0" + rule.getLength() + "d", iOtp);
+                if (rule.isMatching(candidateOtp)) {
+                    nOtp++;
+                }
+            }
+        }
+        return nOtp;
     }
 
 }

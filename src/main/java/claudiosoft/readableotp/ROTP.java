@@ -10,10 +10,16 @@ public class ROTP {
 
     private int otp;
     private int parts;
+    private String schema;
 
     public ROTP(int otp, int parts) {
+        this(otp, parts, "");
+    }
+
+    public ROTP(int otp, int parts, String schema) {
         this.otp = otp;
         this.parts = parts;
+        this.schema = schema;
     }
 
     public String get() {
@@ -30,5 +36,12 @@ public class ROTP {
             ret = String.format("%s %s %s", part1, part2, part3);
         }
         return ret;
+    }
+
+    public String getSchema() {
+        if (schema == null) {
+            schema = "";
+        }
+        return schema;
     }
 }
