@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -76,7 +77,15 @@ public class TestGeneration extends BaseJUnitTest {
     @Test
     public void t03CountAllOTPInstances() throws InterruptedException, IOException, POCException {
         OTPGenerator gen = new OTPGenerator();
-        BasicConsoleLogger.get().info(String.format("OTP Counter: %d", gen.countMax()));
+        int nOtp = gen.countMax();
+        BasicConsoleLogger.get().info(String.format("OTP counter: %d", nOtp));
+        BasicConsoleLogger.get().info(String.format("OTP readable on total: %.1f%%", (nOtp / (double) 1000000) * 100));
+    }
+
+    @Test
+    @Ignore("Manual")
+    public void t04BruteForce() throws InterruptedException, IOException, POCException {
+        //TODO
     }
 
 }

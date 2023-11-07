@@ -82,33 +82,110 @@ public class OTPRule {
     }
 
     public boolean isMatching(String candidateOtp) {
+        String match = schema + " -> " + candidateOtp;
         if (candidateOtp.length() != schema.length()) {
             return false;
         }
         if (candidateOtp.chars().distinct().count() != getDigits()) {
             return false;
         }
-        boolean[] xyz = new boolean[3];
-        xyz[0] = false;
-        xyz[1] = false;
-        xyz[2] = false;
-        for (int i = 0; i < 10; i++) {
+        String[] digits = new String[3];
+        digits[0] = null;
+        digits[1] = null;
+        digits[2] = null;
+
+        for (int i = 0; i <= 9; i++) {
             String curDig = String.format("%d", i);
-            if (candidateOtp.contains(curDig) && !xyz[0]) {
-                candidateOtp = candidateOtp.replace(curDig, "x");
-                xyz[0] = true;
-            } else if (candidateOtp.contains(curDig) && !xyz[1]) {
-                candidateOtp = candidateOtp.replace(curDig, "y");
-                xyz[1] = true;
-            } else if (candidateOtp.contains(curDig) && !xyz[2]) {
-                candidateOtp = candidateOtp.replace(curDig, "z");
-                xyz[2] = true;
+            if (candidateOtp.contains(curDig) && digits[0] == null) {
+                digits[0] = curDig;
+                continue;
+            }
+            if (candidateOtp.contains(curDig) && digits[1] == null) {
+                digits[1] = curDig;
+                continue;
+            }
+            if (candidateOtp.contains(curDig) && digits[2] == null) {
+                digits[2] = curDig;
+                break;
             }
         }
-        if (!candidateOtp.equalsIgnoreCase(schema)) {
-            return false;
+
+        String curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "x");
         }
-        return true;
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "y");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "z");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            BasicConsoleLogger.get().info(match);
+            return true;
+        }
+
+        curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "y");
+        }
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "x");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "z");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            BasicConsoleLogger.get().info(match);
+            return true;
+        }
+
+        curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "y");
+        }
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "z");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "x");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            BasicConsoleLogger.get().info(match);
+            return true;
+        }
+
+        curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "z");
+        }
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "y");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "x");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            BasicConsoleLogger.get().info(match);
+            return true;
+        }
+
+        curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "y");
+        }
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "z");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "x");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            BasicConsoleLogger.get().info(match);
+            return true;
+        }
+
+        return false;
     }
 
     public void validate() {

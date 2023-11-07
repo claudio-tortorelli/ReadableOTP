@@ -29,7 +29,13 @@ public class OTPGenerator {
         rules.add(new OTPRule("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
         rules.add(new OTPRule("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
         rules.add(new OTPRule("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
-        rules.add(new OTPRule("xyzxyz", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
+
+        rules.add(new OTPRule("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
+        rules.add(new OTPRule("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
+        rules.add(new OTPRule("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
+        rules.add(new OTPRule("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
+
         validate();
     }
 
@@ -106,7 +112,7 @@ public class OTPGenerator {
     public int countMax() {
         int nOtp = 0;
         for (OTPRule rule : rules) {
-            int max = rule.getMaxOtp();
+            int max = rule.getMaxOtp() + 1;
             for (int iOtp = 0; iOtp < max; iOtp++) {
                 String candidateOtp = String.format("%0" + rule.getLength() + "d", iOtp);
                 if (rule.isMatching(candidateOtp)) {
