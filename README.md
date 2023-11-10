@@ -25,6 +25,17 @@ Including as facilities
 
 - xyz xyz, 234 234, [0-7], +1, +1
 
+- xyz xyz, 321, 321, [2-9], -1, -1
+- xyz zyx, 123 321, [0-7], +1, +1
+- xxx xxy, 000 004, [0-9], !
+- xxx xyx, 000 040, [0-9], !
+- xxx yxx, 000 400, [0-9], !
+- xxy xxx, 004 000, [0-9], !
+- xyx xxx, 040 000, [0-9], !
+- yxx xxx, 400 000, [0-9], !
+
+--> test to verify rotp not duplicated by rules
+
 #### three parts
 - xx xx yy, 66 66 33, [0-9], !  
 - xx yy yy, 00 44 44, [0-9], !
