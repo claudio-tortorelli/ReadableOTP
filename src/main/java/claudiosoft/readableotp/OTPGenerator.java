@@ -3,6 +3,7 @@ package claudiosoft.readableotp;
 import claudiosoft.pocbase.BasicConsoleLogger;
 import claudiosoft.pocbase.POCException;
 import static claudiosoft.readableotp.OTPConstants.*;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -16,7 +17,10 @@ public class OTPGenerator {
     private List<OTPRule> rules;
     private final Random rand;
 
+    private HashMap otpMap;
+
     public OTPGenerator() {
+        this.otpMap = new HashMap<>();
         this.rand = new Random();
 
         //TODO rules should be externally configurable
@@ -29,19 +33,28 @@ public class OTPGenerator {
         rules.add(new OTPRule("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
         rules.add(new OTPRule("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
         rules.add(new OTPRule("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
+
+        rules.add(new OTPRule("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
+
         rules.add(new OTPRule("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
+        rules.add(new OTPRule("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
 
         rules.add(new OTPRule("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
         rules.add(new OTPRule("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
         rules.add(new OTPRule("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
         rules.add(new OTPRule("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
-
         validate();
     }
 
     private void validate() {
         BasicConsoleLogger.get().debug("validating rules...");
-        //TODO avoid doubled schema;
+        //TODO avoid doubled schema and rules;
         //avoid invalid schema len;
         //avoid schema with too much digit;
         //avoid inconsistent rule's domain...
@@ -75,6 +88,8 @@ public class OTPGenerator {
                 }
             } else if (rule.getyRule().equalsIgnoreCase("+1")) {
                 y = x + 1;
+            } else if (rule.getyRule().equalsIgnoreCase("-1")) {
+                y = x - 1;
             }
         }
 
@@ -87,6 +102,8 @@ public class OTPGenerator {
                 }
             } else if (rule.getyRule().equalsIgnoreCase("+1")) {
                 z = y + 1;
+            } else if (rule.getyRule().equalsIgnoreCase("-1")) {
+                z = y - 1;
             }
         }
 
@@ -110,12 +127,16 @@ public class OTPGenerator {
     }
 
     public int countMax() {
+        return countMax(false);
+    }
+
+    public int countMax(boolean verbose) {
         int nOtp = 0;
         for (OTPRule rule : rules) {
             int max = rule.getMaxOtp() + 1;
             for (int iOtp = 0; iOtp < max; iOtp++) {
                 String candidateOtp = String.format("%0" + rule.getLength() + "d", iOtp);
-                if (rule.isMatching(candidateOtp)) {
+                if (rule.isMatching(candidateOtp, verbose)) {
                     nOtp++;
                 }
             }

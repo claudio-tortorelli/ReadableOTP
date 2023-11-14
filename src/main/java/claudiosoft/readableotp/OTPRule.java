@@ -24,8 +24,16 @@ public class OTPRule {
         this(schema, xRule, null, parts, score);
     }
 
+    public OTPRule(String schema, String xRule, String yRule, int parts) {
+        this(schema, xRule, yRule, null, parts, SCORE_NONE);
+    }
+
     public OTPRule(String schema, String xRule, String yRule, int parts, int score) {
         this(schema, xRule, yRule, null, parts, score);
+    }
+
+    public OTPRule(String schema, String xRule, String yRule, String zRule, int parts) {
+        this(schema, xRule, yRule, zRule, parts, SCORE_NONE);
     }
 
     public OTPRule(String schema, String xRule, String yRule, String zRule, int parts, int score) {
@@ -82,34 +90,72 @@ public class OTPRule {
     }
 
     public boolean isMatching(String candidateOtp) {
+        return isMatching(candidateOtp, false);
+    }
+
+    public boolean isMatching(String candidateOtp, boolean verbose) {
         String match = schema + " -> " + candidateOtp;
         if (candidateOtp.length() != schema.length()) {
             return false;
         }
-        if (candidateOtp.chars().distinct().count() != getDigits()) {
+        int nDig = getDigits();
+        if (candidateOtp.chars().distinct().count() != nDig) {
             return false;
         }
+
         String[] digits = new String[3];
         digits[0] = null;
         digits[1] = null;
         digits[2] = null;
 
-        for (int i = 0; i <= 9; i++) {
-            String curDig = String.format("%d", i);
-            if (candidateOtp.contains(curDig) && digits[0] == null) {
-                digits[0] = curDig;
+        for (char c : candidateOtp.toCharArray()) {
+            if (digits[0] == null) {
+                digits[0] = "" + c;
                 continue;
             }
-            if (candidateOtp.contains(curDig) && digits[1] == null) {
-                digits[1] = curDig;
+            if (digits[1] == null && !digits[0].equals("" + c)) {
+                digits[1] = "" + c;
                 continue;
             }
-            if (candidateOtp.contains(curDig) && digits[2] == null) {
-                digits[2] = curDig;
+            if (digits[2] == null && !digits[0].equals("" + c) && !digits[1].equals("" + c)) {
+                digits[2] = "" + c;
                 break;
             }
         }
 
+        int[] vals = new int[3];
+        vals[0] = -1;
+        vals[1] = -1;
+        vals[2] = -1;
+        vals[0] = Integer.parseInt(digits[0]);
+        if (nDig > 1) {
+            vals[1] = Integer.parseInt(digits[1]);
+        }
+        if (nDig > 2) {
+            vals[2] = Integer.parseInt(digits[2]);
+        }
+
+        // match rules
+        if (yRule != null) {
+            if (yRule.equals("!") && vals[0] == vals[1]) {
+                return false;
+            } else if (yRule.equals("+1") && vals[1] != vals[0] + 1) {
+                return false;
+            } else if (yRule.equals("-1") && vals[1] != vals[0] - 1) {
+                return false;
+            }
+        }
+        if (zRule != null) {
+            if (zRule.equals("!") && (vals[2] == vals[1] || vals[2] == vals[0])) {
+                return false;
+            } else if (zRule.equals("+1") && vals[2] != vals[1] + 1) {
+                return false;
+            } else if (zRule.equals("-1") && vals[2] != vals[1] - 1) {
+                return false;
+            }
+        }
+
+        // match schema
         String curCandidate = candidateOtp;
         if (digits[0] != null) {
             curCandidate = curCandidate.replace(digits[0], "x");
@@ -181,7 +227,9 @@ public class OTPRule {
             curCandidate = curCandidate.replace(digits[2], "x");
         }
         if (curCandidate.equalsIgnoreCase(schema)) {
-            BasicConsoleLogger.get().info(match);
+            if (verbose) {
+                BasicConsoleLogger.get().info(match);
+            }
             return true;
         }
 
