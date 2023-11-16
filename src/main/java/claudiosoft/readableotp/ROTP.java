@@ -8,23 +8,27 @@ import static claudiosoft.readableotp.OTPConstants.*;
  */
 public class ROTP {
 
-    private int otp;
+    private String otp;
     private int parts;
     private String schema;
 
-    public ROTP(int otp, int parts) {
+    public ROTP(String otp, int parts) {
         this(otp, parts, "");
     }
 
-    public ROTP(int otp, int parts, String schema) {
+    public ROTP(String otp, OTPRule rule) {
+        this(otp, rule.getParts(), rule.getSchema());
+    }
+
+    public ROTP(String otp, int parts, String schema) {
         this.otp = otp;
         this.parts = parts;
         this.schema = schema;
     }
 
     public String get() {
-        String ret = String.format("%d", otp);
-        int len = ret.length();
+        String ret = otp;
+        int len = otp.length();
         if (parts == PART_2) {
             String part1 = ret.substring(0, len / 2);
             String part2 = ret.substring(len / 2, len);

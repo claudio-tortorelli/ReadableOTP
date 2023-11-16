@@ -136,7 +136,7 @@ public class OTPRule {
         }
 
         // match rules
-        if (yRule != null) {
+        if (yRule != null && vals[1] != -1) {
             if (yRule.equals("!") && vals[0] == vals[1]) {
                 return false;
             } else if (yRule.equals("+1") && vals[1] != vals[0] + 1) {
@@ -145,7 +145,7 @@ public class OTPRule {
                 return false;
             }
         }
-        if (zRule != null) {
+        if (zRule != null && vals[1] != -1 && vals[2] != -1) {
             if (zRule.equals("!") && (vals[2] == vals[1] || vals[2] == vals[0])) {
                 return false;
             } else if (zRule.equals("+1") && vals[2] != vals[1] + 1) {
@@ -167,7 +167,9 @@ public class OTPRule {
             curCandidate = curCandidate.replace(digits[2], "z");
         }
         if (curCandidate.equalsIgnoreCase(schema)) {
-            BasicConsoleLogger.get().info(match);
+            if (verbose) {
+                BasicConsoleLogger.get().info(match);
+            }
             return true;
         }
 
@@ -182,37 +184,9 @@ public class OTPRule {
             curCandidate = curCandidate.replace(digits[2], "z");
         }
         if (curCandidate.equalsIgnoreCase(schema)) {
-            BasicConsoleLogger.get().info(match);
-            return true;
-        }
-
-        curCandidate = candidateOtp;
-        if (digits[0] != null) {
-            curCandidate = curCandidate.replace(digits[0], "y");
-        }
-        if (digits[1] != null) {
-            curCandidate = curCandidate.replace(digits[1], "z");
-        }
-        if (digits[2] != null) {
-            curCandidate = curCandidate.replace(digits[2], "x");
-        }
-        if (curCandidate.equalsIgnoreCase(schema)) {
-            BasicConsoleLogger.get().info(match);
-            return true;
-        }
-
-        curCandidate = candidateOtp;
-        if (digits[0] != null) {
-            curCandidate = curCandidate.replace(digits[0], "z");
-        }
-        if (digits[1] != null) {
-            curCandidate = curCandidate.replace(digits[1], "y");
-        }
-        if (digits[2] != null) {
-            curCandidate = curCandidate.replace(digits[2], "x");
-        }
-        if (curCandidate.equalsIgnoreCase(schema)) {
-            BasicConsoleLogger.get().info(match);
+            if (verbose) {
+                BasicConsoleLogger.get().info(match);
+            }
             return true;
         }
 
@@ -233,6 +207,39 @@ public class OTPRule {
             return true;
         }
 
+        curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "z");
+        }
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "y");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "x");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            if (verbose) {
+                BasicConsoleLogger.get().info(match);
+            }
+            return true;
+        }
+
+        curCandidate = candidateOtp;
+        if (digits[0] != null) {
+            curCandidate = curCandidate.replace(digits[0], "y");
+        }
+        if (digits[1] != null) {
+            curCandidate = curCandidate.replace(digits[1], "z");
+        }
+        if (digits[2] != null) {
+            curCandidate = curCandidate.replace(digits[2], "x");
+        }
+        if (curCandidate.equalsIgnoreCase(schema)) {
+            if (verbose) {
+                BasicConsoleLogger.get().info(match);
+            }
+            return true;
+        }
         return false;
     }
 
