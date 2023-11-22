@@ -4,6 +4,7 @@ import claudiosoft.pocbase.BasicConsoleLogger;
 import claudiosoft.pocbase.POCException;
 import static claudiosoft.readableotp.OTPConstants.*;
 import static java.lang.Math.pow;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -20,14 +21,14 @@ public class OTPGenerator {
     private final int expectedDigits = 6;
     private static String[] rOtpArray;
 
-    public OTPGenerator() {
+    public OTPGenerator() throws POCException, NoSuchAlgorithmException {
         this(null);
     }
 
     //TODO rules should be externally configurable
     //TODO score is not used by now
     //TODO every rule could swap and reload to file its possible ROTP
-    public OTPGenerator(OTPRule rule) {
+    public OTPGenerator(OTPRule rule) throws POCException, NoSuchAlgorithmException {
         this.rand = new Random();
         rules = new LinkedList<>();
 
@@ -61,16 +62,32 @@ public class OTPGenerator {
         validate();
     }
 
-    private void validate() {
+    private void validate() throws POCException, NoSuchAlgorithmException {
         BasicConsoleLogger.get().debug("validating rules...");
 
-        //TODO avoid doubled schema and rules;
-        //avoid invalid schema len;
-        //avoid schema with too much digit;
-        //avoid inconsistent rule's domain...
-//        if (len%2 > 0 part == 2) {
-//                throw new POCException("")
+        for (int iRule = 0; iRule < rules.size(); iRule++) {
+            OTPRule ruleX = rules.get(iRule);
+            if (ruleX.getLength() != expectedDigits) {
+                throw new POCException("found rule with invalid digits length: " + ruleX.getSchema());
+            }
+            if (!ruleX.getSchema().matches("^[xyzXYZ]+$")) {
+                throw new POCException("found rule with invalid chars in schema: " + ruleX.getSchema());
+            }
+//            if (ruleX.getLength() % 2 == 0 && ruleX.getParts() != PART_2) {
+//                throw new POCException("found rule with inconsistent partition: " + ruleX.getSchema());
 //            }
+//            if (ruleX.getLength() % 2 == 1 && ruleX.getParts() != PART_3) {
+//                throw new POCException("found rule with inconsistent partition: " + ruleX.getSchema());
+//            }
+            for (int jRule = iRule + 1; jRule < rules.size(); jRule++) {
+                OTPRule ruleY = rules.get(jRule);
+                if (ruleX.isEquivalentTo(ruleY)) {
+                    throw new POCException("found doubled rule: " + ruleX.getSchema());
+                }
+            }
+            //TODO improving x y z rule check verifying their domain consistency
+        }
+        BasicConsoleLogger.get().debug("validation done...");
         rOtpArray = new String[(int) pow(10, expectedDigits)];
         countMax(false);
     }
@@ -79,8 +96,10 @@ public class OTPGenerator {
         return generate(SCORE_NONE);
     }
 
+    //TODO filter by score too
+    //TODO sometimes it should generate a full random OTP. The frequency must be configurable: it improve the defence from brute force attack
     public ROTP generate(int minScore) throws POCException {
-        //TODO filter by score too
+
         int iRule = rand.nextInt(rules.size());
         OTPRule rule = rules.get(iRule);
 
@@ -132,7 +151,7 @@ public class OTPGenerator {
         return new ROTP(otp, rule.getParts(), rule.getSchema());
     }
 
-    public void overrideRules(List<OTPRule> rules) throws POCException {
+    public void overrideRules(List<OTPRule> rules) throws POCException, NoSuchAlgorithmException {
         if (rules == null || rules.isEmpty()) {
             throw new POCException("Invalid rule list");
         }
@@ -145,6 +164,9 @@ public class OTPGenerator {
     }
 
     public int countMax(boolean verbose) {
+        if (verbose) {
+            BasicConsoleLogger.get().info("start counting rule's otp...");
+        }
         for (OTPRule rule : rules) {
             int max = rule.getMaxOtp() + 1;
             for (int iOtp = 0; iOtp < max; iOtp++) {
@@ -159,6 +181,9 @@ public class OTPGenerator {
             if (rotp != null && !rotp.isEmpty()) {
                 nOtp++;
             }
+        }
+        if (verbose) {
+            BasicConsoleLogger.get().info("end counting rule's otp: " + nOtp);
         }
         return nOtp;
     }

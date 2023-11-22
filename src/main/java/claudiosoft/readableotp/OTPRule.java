@@ -1,7 +1,9 @@
 package claudiosoft.readableotp;
 
 import claudiosoft.pocbase.BasicConsoleLogger;
+import claudiosoft.pocbase.BasicUtils;
 import static claudiosoft.readableotp.OTPConstants.SCORE_NONE;
+import java.security.NoSuchAlgorithmException;
 
 /**
  *
@@ -243,8 +245,29 @@ public class OTPRule {
         return false;
     }
 
+    public boolean isEquivalentTo(OTPRule rule) throws NoSuchAlgorithmException {
+        if (getId().equals(rule.getId())) {
+            return true;
+        }
+        return false;
+    }
+
     public void validate() {
         //TODO apply rule validation and throw exception if invalid
+    }
+
+    public String getId() throws NoSuchAlgorithmException {
+        String input = schema;
+        if (xRule != null) {
+            input += xRule;
+        }
+        if (yRule != null) {
+            input += yRule;
+        }
+        if (zRule != null) {
+            input += zRule;
+        }
+        return new String(BasicUtils.getSHA256(input));
     }
 
 }
