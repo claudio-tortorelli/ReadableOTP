@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -107,16 +106,49 @@ public class TestGeneration extends BaseJUnitTest {
     }
 
     @Test
-    @Ignore("TODO")
-    public void t04BruteForceAverage() throws InterruptedException, IOException, POCException {
-        //TODO reiterato
-    }
-
-    @Test
     public void t05WrapToNext() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
         OTPGenerator gen = new OTPGenerator(new OTPRule("xxxyyy", "0,9", "!", PART_2));
         Assert.assertTrue(gen.wrapToNext("111221").get().equals("111 222"));
         Assert.assertTrue(gen.wrapToNext("999999").get().equals("000 111"));
+    }
+
+    @Test
+    public void t06NotROPT() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
+        getGenerator().setRotpFrequency(0.0);
+        BasicConsoleLogger.get().info(getGenerator().generate().get());
+        BasicConsoleLogger.get().info(getGenerator().generate().get());
+        BasicConsoleLogger.get().info(getGenerator().generate().get());
+    }
+
+    @Test
+    public void t06ROPTWithFreq() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
+        getGenerator().setRotpFrequency(0.5);
+        for (int i = 0; i < 10; i++) {
+            BasicConsoleLogger.get().info(getGenerator().generate().get());
+        }
+    }
+
+    @Test
+    public void t06BruteForceWithFreq() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
+        OTPGenerator bruteGen = getGenerator();
+        bruteGen.setRotpFrequency(0.7);
+        final int maxAttemps = 3; // because of ROTP are simpler to write
+        int trial = 0;
+        boolean bruted = false;
+        while (true) {
+            ROTP otp = bruteGen.generate();
+            for (int i = 0; i < maxAttemps; i++) {
+                if (bruteGen.generate().get().equals(otp.get())) {
+                    bruted = true;
+                    break;
+                }
+                trial++;
+            }
+            if (bruted) {
+                break;
+            }
+        }
+        BasicConsoleLogger.get().info(String.format("OTP bruted after %d trials and %d ban", trial, (trial / maxAttemps)));
     }
 
 }

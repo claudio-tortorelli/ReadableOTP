@@ -20,6 +20,7 @@ public class OTPGenerator {
 
     private final int expectedDigits = 6;
     private static String[] rOtpArray;
+    private double rotpFrequency; // (0,1)
 
     public OTPGenerator() throws POCException, NoSuchAlgorithmException {
         this(null);
@@ -29,8 +30,9 @@ public class OTPGenerator {
     //TODO score is not used by now
     //TODO every rule could swap and reload to file its possible ROTP
     public OTPGenerator(OTPRule rule) throws POCException, NoSuchAlgorithmException {
-        this.rand = new Random();
+        rand = new Random();
         rules = new LinkedList<>();
+        rotpFrequency = 1.0;
 
         if (rule != null) {
             rules.add(rule);
@@ -99,6 +101,11 @@ public class OTPGenerator {
     //TODO filter by score too
     //TODO sometimes it should generate a full random OTP. The frequency must be configurable: it improve the defence from brute force attack
     public ROTP generate(int minScore) throws POCException {
+
+        if (rand.nextDouble() > rotpFrequency) {
+            String otp = String.format("%0" + expectedDigits + "d", rand.nextInt((int) pow(10, expectedDigits)));
+            return new ROTP(otp, PART_2);
+        }
 
         int iRule = rand.nextInt(rules.size());
         OTPRule rule = rules.get(iRule);
@@ -210,6 +217,19 @@ public class OTPGenerator {
             }
         }
         throw new POCException("Unable to match any ROTP");
+    }
+
+    public double getRotpFrequency() {
+        return rotpFrequency;
+    }
+
+    public void setRotpFrequency(double rotpFrequency) throws POCException {
+        if (rotpFrequency > 1.0) {
+            throw new POCException("invalid rotp frequency value (0,1)");
+        } else if (rotpFrequency < 0.0) {
+            throw new POCException("invalid rotp frequency value (0,1)");
+        }
+        this.rotpFrequency = rotpFrequency;
     }
 
 }
