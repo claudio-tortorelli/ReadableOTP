@@ -1,6 +1,22 @@
 # ReadableOTP
 
-## OTP schema
+1. [Sinossi](#Sinossi)
+2. [Dettaglio](#Dettaglio)
+3. [Implementazione](#Implementazione)
+4. [TO-DO](#TO-DO]
+
+## Sinossi <a name="Sinossi"></a>
+L'utilizzo di OTP, One Time Password, ovvero password a tempo spendibili una volta solamente, è ormai diventato molto comune.
+Le tecnologie di autenticazione a 2 fattori si basano spesso sulla ricezione di sms o messaggi con degli OTP oppure sulla loro generazione tramite appositi token sincronizzati.
+In determinati contesti è necessario inserire OTP in modo frequente (ad esempio per l'autenticazione a sessioni di durata particolarmente breve, oppure nel caso di operazioni che richiedono ripetutamente l'identificazione
+come le transazioni bancarie) tendono a verificarsi errori di lettura/battitura con conseguente perdita di tempo.
+Quando gli errori sono ripetuti si arriva anche al ban o al blocco dell'utenza, con ovvio disagio dell'utente e/o dell'assistenza.
+
+L'idea alla base del POC ReadableOTP è proprio volta a verificare quanto sia necessaria una pseudocasualità completa sull'intero dominio delle cifre, piuttosto che variare all'interno di un insieme di schemi che rendono 
+"maggiormente leggibile" l'OTP. Questo per verificare se è possibile ridurre potenziali errori di lettura/scrittura e la relativa frustrazione, senza introdurre sostanziali vulnerabilità di sicurezza.
+
+## Dettaglio <a name="Dettaglio"></a>
+### OTP schema
 ### Rules score classification
 Using up to 3 different digits rules
 - 1 digits --> +2 Points
@@ -69,3 +85,7 @@ Including as facilities
 #### three parts?
 - xx yyyy xx
 - xy yyyy xy
+
+## Implementazione <a name="Implementazione"></a>
+
+## TO-DO <a name="TO-DO"></a>
