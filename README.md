@@ -63,7 +63,7 @@ new OTPRule("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
 new OTPRule("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
 ```
 Come si può notare ho previsto anche un punteggio attribuibile ad ogni schema per un eventuale filtro.
-Al momento però ho solamente fatto una ipotesi 
+Una ipotesi può essere la seguente
 - 1 digits --> +3
 - 2 digits --> +2
 - 3 digits --> +1
@@ -71,6 +71,14 @@ Al momento però ho solamente fatto una ipotesi
 - repetitive patterns --> +1 (easy to memorize)
 - logical steps --> +1 (easy to write)
 Oppure il punteggio potrebbe essere basato su test empirici sufficientemente numerosi.
+
+Il meccanismo dovrà includere anche 
+- un modo per contare le occorrenze di ROTP generabili in base ad un certo schema
+- un modo per gestire gli ROTP duplicabili in schemi diversi
+- un modo per "convertire" un OTP in un ROTP
+- un modo per verificare l'appartenenza di un OTP ad uno schema
+
+Mentre sono fuori dall'obiettivo le gestione ottimizzata e performante e le eventuali accortezze per salvare e ricaricare gli schemi.
 
 ## Implementazione <a name="Implementazione"></a>
 
