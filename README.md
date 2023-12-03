@@ -3,89 +3,77 @@
 1. [Sinossi](#Sinossi)
 2. [Dettaglio](#Dettaglio)
 3. [Implementazione](#Implementazione)
-4. [TO-DO](#TO-DO]
+4. [Conclusione e TODO](#Conclusione)
 
 ## Sinossi <a name="Sinossi"></a>
 L'utilizzo di OTP, One Time Password, ovvero password a tempo spendibili una volta solamente, è ormai diventato molto comune.
-Le tecnologie di autenticazione a 2 fattori si basano spesso sulla ricezione di sms o messaggi con degli OTP oppure sulla loro generazione tramite appositi token sincronizzati.
+Le tecnologie di autenticazione a 2 fattori si basano spesso sulla ricezione di sms o notifiche con degli OTP oppure sulla loro generazione tramite appositi token sincronizzati.
 In determinati contesti è necessario inserire OTP in modo frequente (ad esempio per l'autenticazione a sessioni di durata particolarmente breve, oppure nel caso di operazioni che richiedono ripetutamente l'identificazione
-come le transazioni bancarie) tendono a verificarsi errori di lettura/battitura con conseguente perdita di tempo.
-Quando gli errori sono ripetuti si arriva anche al ban o al blocco dell'utenza, con ovvio disagio dell'utente e/o dell'assistenza.
+come le transazioni bancarie) ed aumenta anche la probabilità di errori di lettura/battitura con conseguente perdita di tempo.
+Quando gli errori si sommano in modo anomalo si arriva anche al ban o al blocco dell'utenza, con ovvio disagio dell'utente e dell'assistenza.
 
-L'idea alla base del POC ReadableOTP è proprio volta a verificare quanto sia necessaria una pseudocasualità completa sull'intero dominio delle cifre, piuttosto che variare all'interno di un insieme di schemi che rendono 
+L'idea alla base del POC ReadableOTP è proprio volta a verificare quanto sia necessaria una pseudocasualità completa sull'intero dominio delle cifre previste, piuttosto che limitarsi ad un insieme di schemi che rendono 
 "maggiormente leggibile" l'OTP. Questo per verificare se è possibile ridurre potenziali errori di lettura/scrittura e la relativa frustrazione, senza introdurre sostanziali vulnerabilità di sicurezza.
 
 ## Dettaglio <a name="Dettaglio"></a>
-### OTP schema
-### Rules score classification
-Using up to 3 different digits rules
-- 1 digits --> +2 Points
-- 2 digits --> +1 Points
-- 3 digits --> +0.5 Point
+
+### Gli ROTP
+Tutti possono notare che determinate sequenze numeriche di OTP sono di rapida lettura e memorizzazione. Ho quindi cercato di individuare degli schemi per riprodurli che si basassero su
+- poche cifre diverse 
+- facilità e rapidità di scrittura
+- pattern simmetrici e ripetitivi
+- eventuale implicazione logica nella sequenza delle cifre
   
-Including as facilities 
-- symmetry (1) --> +1 Point (easy to read)
-- repetitive patterns (2) --> +1 Point (easy to memorize)
-- logical steps (3) --> +0.5 Point (easy to write)
+Esempi possono essere "123 123" oppure "00 11 00". Per ricavare questi schemi mi sono basato solo su semplici considerazioni empiriche.
+Al fine di concentrarmi sul POC ho considerato esclusivamente OTP di 6 cifre, benché lo stesso approccio possa essere ovviamente esteso al contesto (altrettanto diffuso) degli OTP a 8 cifre.
+Inoltre ogni OTP "semplificato", che da qui in poi chiamerò ROTP, potrà comporsi al massimo di 3 cifre diverse. 
+La modalità con cui si individuano le cifre (x, y, z) è descritta da alcune regole, in modo posizionale.
 
-### six digit
+Ad esempio
+- [0-9] : la cifra può variare tra 0 e 9
+- ! : la cifra deve essere differente dalle precedenti
+- +1 : la cifra incrementa di una unità la cifra precedente
+- -1 : la cifra decrementa di una unità la cifra precedente
 
-#### two parts
-- xxx xxx, 111 111, [0-9]
-- xxx yyy, 111 444, [0-9], !
-- xxy xxy, 004 004, [0-9], !
-- xyy xyy, 733 733, [0-9], !
-- xyx xyx, 414 414, [0-9], !
-- xxy yxx, 885 588, [0-9], !
-- xyy yyx, 766 667, [0-9], !
+Inoltre lo schema comprende anche la suddivisione dell'ROTP in parti, ovvero in 2 o 3 parti.
 
-- xyz xyz, 234 234, [0-7], +1, +1
+### ROTP schema
+Di seguito gli schemi di ROTP che ho utilizzato nel mio POC
 
-- xyz xyz, 321, 321, [2-9], -1, -1
-- xyz zyx, 123 321, [0-7], +1, +1
-- xxx xxy, 000 004, [0-9], !
-- xxx xyx, 000 040, [0-9], !
-- xxx yxx, 000 400, [0-9], !
-- xxy xxx, 004 000, [0-9], !
-- xyx xxx, 040 000, [0-9], !
-- yxx xxx, 400 000, [0-9], !
-
---> test to verify rotp not duplicated by rules
-
-#### three parts
-- xx xx yy, 66 66 33, [0-9], !  
-- xx yy yy, 00 44 44, [0-9], !
-- xy xy xy, 93 93 93, [0-9], !
-
-- xx yy zz, 77 22 44, [0-9], !, !
-
-### eight digit
-#### two parts
-- xxxx xxxx, 5555 5555, x=[0-9]
-
-- xxxx yyyy, 1111 0000, [0-9], !
-- xyxy xyxy, 2121 2121, [0-9], !
-- xxyy xxyy, 0099 0099, [0-9], !
-- xxxx xxxy, 2222 2227, [0-9], !
-- xyyy yyyy, 4666 6666, [0-9], !
-- xxyy yyxx, 8822 2288, [0-9], !
-
-(+ subset)
-- xxxx yyyy, 1111 2222, [0-8], +1
-- xyxy xyxy, 3434 3434, [0-8], +1
-- xxyy xxyy, 8899 8899, [0-8], +1
-- xxxx xxxy, 2222 2223, [0-8], +1
-- xyyy yyyy, 4555 5555, [0-8], +1
-- xxyy yyxx, 8899 9988, [0-8], +1
-
-- xyzz xyzz, 1322 1322, [0-9], !, !
-- xyyz xyyz, 4116 4116, [0-9], !, !
-- xyyy zzzz, 0999 3333, [0-9], !, !
-
-#### three parts?
-- xx yyyy xx
-- xy yyyy xy
+```
+new OTPRule("xxxxxx", "0,9", PART_2, SCORE_NONE));
+new OTPRule("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
+new OTPRule("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
+new OTPRule("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
+new OTPRule("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
+new OTPRule("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
+new OTPRule("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
+new OTPRule("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
+new OTPRule("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
+```
+Come si può notare ho previsto anche un punteggio attribuibile ad ogni schema per un eventuale filtro.
+Al momento però ho solamente fatto una ipotesi 
+- 1 digits --> +3
+- 2 digits --> +2
+- 3 digits --> +1
+- symmetry --> +1 (easy to read)
+- repetitive patterns --> +1 (easy to memorize)
+- logical steps --> +1 (easy to write)
+Oppure il punteggio potrebbe essere basato su test empirici sufficientemente numerosi.
 
 ## Implementazione <a name="Implementazione"></a>
 
-## TO-DO <a name="TO-DO"></a>
+## Conclusione e TODO <a name="Conclusione"></a>
+
+
