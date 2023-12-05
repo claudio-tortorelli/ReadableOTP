@@ -16,10 +16,9 @@ import java.util.Random;
  */
 public class ROTPGenerator {
 
-    private List<ROTPSchema> rules;
+    private List<ROTPSchema> schemas;
     private final Random rand;
 
-    private final int expectedDigits = 6;
     private static String[] rOtpArray;
     private double rotpFrequency; // (0,1)
 
@@ -30,37 +29,37 @@ public class ROTPGenerator {
     //TODO rules should be externally configurable
     //TODO score is not used by now
     //TODO every rule could swap and reload to file its possible ROTP
-    public ROTPGenerator(ROTPSchema rule) throws POCException, NoSuchAlgorithmException {
+    public ROTPGenerator(ROTPSchema schema) throws POCException, NoSuchAlgorithmException {
         rand = new Random();
-        rules = new LinkedList<>();
+        schemas = new LinkedList<>();
         rotpFrequency = 1.0;
 
-        if (rule != null) {
-            rules.add(rule);
+        if (schema != null) {
+            schemas.add(schema);
         } else {
-            rules.add(new ROTPSchema("xxxxxx", "0,9", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxxxxx", "0,9", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
 
-            rules.add(new ROTPSchema("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
 
-            rules.add(new ROTPSchema("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
-            rules.add(new ROTPSchema("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
 
-            rules.add(new ROTPSchema("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
-            rules.add(new ROTPSchema("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
-            rules.add(new ROTPSchema("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
-            rules.add(new ROTPSchema("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
+            schemas.add(new ROTPSchema("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
+            schemas.add(new ROTPSchema("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
         }
         validate();
     }
@@ -68,9 +67,9 @@ public class ROTPGenerator {
     private void validate() throws POCException, NoSuchAlgorithmException {
         BasicConsoleLogger.get().debug("validating rules...");
 
-        for (int iRule = 0; iRule < rules.size(); iRule++) {
-            ROTPSchema ruleX = rules.get(iRule);
-            if (ruleX.getLength() != expectedDigits) {
+        for (int iRule = 0; iRule < schemas.size(); iRule++) {
+            ROTPSchema ruleX = schemas.get(iRule);
+            if (ruleX.getLength() != ROTPConstants.EXPECTED_DIGITS) {
                 throw new POCException("found rule with invalid digits length: " + ruleX.getSchema());
             }
             if (!ruleX.getSchema().matches("^[xyzXYZ]+$")) {
@@ -82,8 +81,8 @@ public class ROTPGenerator {
 //            if (ruleX.getLength() % 2 == 1 && ruleX.getParts() != PART_3) {
 //                throw new POCException("found rule with inconsistent partition: " + ruleX.getSchema());
 //            }
-            for (int jRule = iRule + 1; jRule < rules.size(); jRule++) {
-                ROTPSchema ruleY = rules.get(jRule);
+            for (int jRule = iRule + 1; jRule < schemas.size(); jRule++) {
+                ROTPSchema ruleY = schemas.get(jRule);
                 if (ruleX.isEquivalentTo(ruleY)) {
                     throw new POCException("found doubled rule: " + ruleX.getSchema());
                 }
@@ -91,7 +90,7 @@ public class ROTPGenerator {
             //TODO improving x y z rule check verifying their domain consistency
         }
         BasicConsoleLogger.get().debug("validation done...");
-        rOtpArray = new String[(int) pow(10, expectedDigits)];
+        rOtpArray = new String[(int) pow(10, ROTPConstants.EXPECTED_DIGITS)];
         countMax(false);
     }
 
@@ -103,12 +102,12 @@ public class ROTPGenerator {
     public ROTP generate(int minScore) throws POCException {
 
         if (rand.nextDouble() > rotpFrequency) {
-            String otp = String.format("%0" + expectedDigits + "d", rand.nextInt((int) pow(10, expectedDigits)));
+            String otp = String.format("%0" + ROTPConstants.EXPECTED_DIGITS + "d", rand.nextInt((int) pow(10, ROTPConstants.EXPECTED_DIGITS)));
             return new ROTP(otp, PART_2);
         }
 
-        int iRule = rand.nextInt(rules.size());
-        ROTPSchema rule = rules.get(iRule);
+        int iRule = rand.nextInt(schemas.size());
+        ROTPSchema rule = schemas.get(iRule);
 
         int nDigits = rule.getDigits();
 
@@ -162,7 +161,7 @@ public class ROTPGenerator {
         if (rules == null || rules.isEmpty()) {
             throw new POCException("Invalid rule list");
         }
-        this.rules = rules;
+        this.schemas = rules;
         validate();
     }
 
@@ -174,7 +173,7 @@ public class ROTPGenerator {
         if (verbose) {
             BasicConsoleLogger.get().info("start counting rule's otp...");
         }
-        for (ROTPSchema rule : rules) {
+        for (ROTPSchema rule : schemas) {
             int max = rule.getMaxOtp() + 1;
             for (int iOtp = 0; iOtp < max; iOtp++) {
                 String candidateOtp = String.format("%0" + rule.getLength() + "d", iOtp);
@@ -196,7 +195,7 @@ public class ROTPGenerator {
     }
 
     private ROTPSchema findFirstMatchingRule(String candidateOtp) throws POCException {
-        for (ROTPSchema rule : rules) {
+        for (ROTPSchema rule : schemas) {
             if (rule.isMatching(candidateOtp)) {
                 return rule;
             }

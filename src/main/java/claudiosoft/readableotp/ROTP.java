@@ -17,8 +17,8 @@ public class ROTP {
         this(otp, parts, "");
     }
 
-    public ROTP(String otp, ROTPSchema rule) {
-        this(otp, rule.getParts(), rule.getSchema());
+    public ROTP(String otp, ROTPSchema schema) {
+        this(otp, schema.getParts(), schema.getSchema());
     }
 
     public ROTP(String otp, int parts, String schema) {

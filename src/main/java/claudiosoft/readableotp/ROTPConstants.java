@@ -16,4 +16,5 @@ public class ROTPConstants {
     public static final int PART_2 = 2;
     public static final int PART_3 = 3;
 
+    public static final int EXPECTED_DIGITS = 6;
 }

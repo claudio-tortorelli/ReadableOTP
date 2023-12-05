@@ -5,14 +5,18 @@
  */
 import claudiosoft.pocbase.BasicConsoleLogger;
 import claudiosoft.pocbase.POCException;
+import claudiosoft.readableotp.ROTP;
+import claudiosoft.readableotp.ROTPConstants;
 import static claudiosoft.readableotp.ROTPConstants.*;
 import claudiosoft.readableotp.ROTPGenerator;
 import claudiosoft.readableotp.ROTPSchema;
-import claudiosoft.readableotp.ROTP;
 import java.io.IOException;
+import static java.lang.Math.pow;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -23,7 +27,9 @@ public class TestGeneration extends BaseJUnitTest {
 
     private ROTPGenerator getGenerator() throws POCException, NoSuchAlgorithmException {
         if (gen == null) {
+            BasicConsoleLogger.get().info("Start building generator...");
             gen = new ROTPGenerator();
+            BasicConsoleLogger.get().info("finished");
         }
         return gen;
     }
@@ -130,15 +136,21 @@ public class TestGeneration extends BaseJUnitTest {
 
     @Test
     public void t06BruteForceWithFreq() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
-        ROTPGenerator bruteGen = getGenerator();
+        ROTPGenerator gen = getGenerator();
+        gen.setRotpFrequency(0.5);
+
+        ROTPGenerator bruteGen = new ROTPGenerator();
         bruteGen.setRotpFrequency(0.75);
         final int maxAttemps = 3; // because of ROTP are simpler to write
         int trial = 0;
         boolean bruted = false;
         while (true) {
-            ROTP otp = bruteGen.generate();
+            ROTP otp = gen.generate();
+            BasicConsoleLogger.get().info("ROTP: " + otp.get());
             for (int i = 0; i < maxAttemps; i++) {
-                if (bruteGen.generate().get().equals(otp.get())) {
+                String otpTrial = bruteGen.generate().get();
+                BasicConsoleLogger.get().info(" - trial: " + otpTrial);
+                if (otpTrial.equals(otp.get())) {
                     bruted = true;
                     break;
                 }
@@ -147,6 +159,38 @@ public class TestGeneration extends BaseJUnitTest {
             if (bruted) {
                 break;
             }
+            BasicConsoleLogger.get().info("Ban!\n");
+        }
+        BasicConsoleLogger.get().info(String.format("OTP bruted after %d trials and %d ban", trial, (trial / maxAttemps)));
+    }
+
+    @Test
+    @Ignore("Manual only")
+    public void t06FullBruteForceVSROTP() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
+
+        ROTPGenerator bruteGen = getGenerator();
+        bruteGen.setRotpFrequency(0.75);
+        final int maxAttemps = 3; // because of ROTP are simpler to write
+        int trial = 0;
+        boolean bruted = false;
+        Random rand = new Random();
+        while (true) {
+            ROTP otp = bruteGen.generate();
+            String masterOTP = otp.get().replace(" ", "");
+            BasicConsoleLogger.get().info("ROTP: " + otp.get());
+            for (int i = 0; i < maxAttemps; i++) {
+                String otpTrial = String.format("%0" + ROTPConstants.EXPECTED_DIGITS + "d", rand.nextInt((int) pow(10, ROTPConstants.EXPECTED_DIGITS)));
+                BasicConsoleLogger.get().info(" - trial: " + otpTrial);
+                if (masterOTP.equals(otpTrial)) {
+                    bruted = true;
+                    break;
+                }
+                trial++;
+            }
+            if (bruted) {
+                break;
+            }
+            BasicConsoleLogger.get().info("Ban!\n");
         }
         BasicConsoleLogger.get().info(String.format("OTP bruted after %d trials and %d ban", trial, (trial / maxAttemps)));
     }
