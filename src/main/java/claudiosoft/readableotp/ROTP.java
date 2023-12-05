@@ -1,10 +1,11 @@
 package claudiosoft.readableotp;
 
-import static claudiosoft.readableotp.OTPConstants.*;
+import static claudiosoft.readableotp.ROTPConstants.*;
 
 /**
+ * ReadableOTP
  *
- * @author Claudio
+ * @author Claudio Tortorelli
  */
 public class ROTP {
 
@@ -16,7 +17,7 @@ public class ROTP {
         this(otp, parts, "");
     }
 
-    public ROTP(String otp, OTPRule rule) {
+    public ROTP(String otp, ROTPSchema rule) {
         this(otp, rule.getParts(), rule.getSchema());
     }
 

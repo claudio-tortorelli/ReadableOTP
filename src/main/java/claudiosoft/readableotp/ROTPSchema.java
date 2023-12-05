@@ -2,14 +2,16 @@ package claudiosoft.readableotp;
 
 import claudiosoft.pocbase.BasicConsoleLogger;
 import claudiosoft.pocbase.BasicUtils;
-import static claudiosoft.readableotp.OTPConstants.SCORE_NONE;
+import claudiosoft.pocbase.POCException;
+import static claudiosoft.readableotp.ROTPConstants.SCORE_NONE;
 import java.security.NoSuchAlgorithmException;
 
 /**
+ * ReadableOTP
  *
- * @author Claudio
+ * @author Claudio Tortorelli
  */
-public class OTPRule {
+public class ROTPSchema {
 
     private String schema;
     private String xRule;
@@ -18,27 +20,27 @@ public class OTPRule {
     private int score;
     private int parts;
 
-    public OTPRule(String schema, String xRule, int parts) {
+    public ROTPSchema(String schema, String xRule, int parts) {
         this(schema, xRule, parts, SCORE_NONE);
     }
 
-    public OTPRule(String schema, String xRule, int parts, int score) {
+    public ROTPSchema(String schema, String xRule, int parts, int score) {
         this(schema, xRule, null, parts, score);
     }
 
-    public OTPRule(String schema, String xRule, String yRule, int parts) {
+    public ROTPSchema(String schema, String xRule, String yRule, int parts) {
         this(schema, xRule, yRule, null, parts, SCORE_NONE);
     }
 
-    public OTPRule(String schema, String xRule, String yRule, int parts, int score) {
+    public ROTPSchema(String schema, String xRule, String yRule, int parts, int score) {
         this(schema, xRule, yRule, null, parts, score);
     }
 
-    public OTPRule(String schema, String xRule, String yRule, String zRule, int parts) {
+    public ROTPSchema(String schema, String xRule, String yRule, String zRule, int parts) {
         this(schema, xRule, yRule, zRule, parts, SCORE_NONE);
     }
 
-    public OTPRule(String schema, String xRule, String yRule, String zRule, int parts, int score) {
+    public ROTPSchema(String schema, String xRule, String yRule, String zRule, int parts, int score) {
         this.schema = schema;
         this.xRule = xRule;
         this.yRule = yRule;
@@ -245,15 +247,15 @@ public class OTPRule {
         return false;
     }
 
-    public boolean isEquivalentTo(OTPRule rule) throws NoSuchAlgorithmException {
+    public boolean isEquivalentTo(ROTPSchema rule) throws NoSuchAlgorithmException {
         if (getId().equals(rule.getId())) {
             return true;
         }
         return false;
     }
 
-    public void validate() {
-        //TODO apply rule validation and throw exception if invalid
+    public void validate() throws POCException {
+        throw new POCException("TODO apply rule validation and throw exception if invalid");
     }
 
     public String getId() throws NoSuchAlgorithmException {

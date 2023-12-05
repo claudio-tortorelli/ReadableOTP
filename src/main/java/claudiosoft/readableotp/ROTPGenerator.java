@@ -2,7 +2,7 @@ package claudiosoft.readableotp;
 
 import claudiosoft.pocbase.BasicConsoleLogger;
 import claudiosoft.pocbase.POCException;
-import static claudiosoft.readableotp.OTPConstants.*;
+import static claudiosoft.readableotp.ROTPConstants.*;
 import static java.lang.Math.pow;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
@@ -10,26 +10,27 @@ import java.util.List;
 import java.util.Random;
 
 /**
+ * ReadableOTP
  *
- * @author Claudio
+ * @author Claudio Tortorelli
  */
-public class OTPGenerator {
+public class ROTPGenerator {
 
-    private List<OTPRule> rules;
+    private List<ROTPSchema> rules;
     private final Random rand;
 
     private final int expectedDigits = 6;
     private static String[] rOtpArray;
     private double rotpFrequency; // (0,1)
 
-    public OTPGenerator() throws POCException, NoSuchAlgorithmException {
+    public ROTPGenerator() throws POCException, NoSuchAlgorithmException {
         this(null);
     }
 
     //TODO rules should be externally configurable
     //TODO score is not used by now
     //TODO every rule could swap and reload to file its possible ROTP
-    public OTPGenerator(OTPRule rule) throws POCException, NoSuchAlgorithmException {
+    public ROTPGenerator(ROTPSchema rule) throws POCException, NoSuchAlgorithmException {
         rand = new Random();
         rules = new LinkedList<>();
         rotpFrequency = 1.0;
@@ -37,29 +38,29 @@ public class OTPGenerator {
         if (rule != null) {
             rules.add(rule);
         } else {
-            rules.add(new OTPRule("xxxxxx", "0,9", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxxxxx", "0,9", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
 
-            rules.add(new OTPRule("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
 
-            rules.add(new OTPRule("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
-            rules.add(new OTPRule("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
+            rules.add(new ROTPSchema("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
 
-            rules.add(new OTPRule("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
-            rules.add(new OTPRule("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
-            rules.add(new OTPRule("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
-            rules.add(new OTPRule("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
+            rules.add(new ROTPSchema("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
+            rules.add(new ROTPSchema("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
+            rules.add(new ROTPSchema("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
+            rules.add(new ROTPSchema("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
         }
         validate();
     }
@@ -68,7 +69,7 @@ public class OTPGenerator {
         BasicConsoleLogger.get().debug("validating rules...");
 
         for (int iRule = 0; iRule < rules.size(); iRule++) {
-            OTPRule ruleX = rules.get(iRule);
+            ROTPSchema ruleX = rules.get(iRule);
             if (ruleX.getLength() != expectedDigits) {
                 throw new POCException("found rule with invalid digits length: " + ruleX.getSchema());
             }
@@ -82,7 +83,7 @@ public class OTPGenerator {
 //                throw new POCException("found rule with inconsistent partition: " + ruleX.getSchema());
 //            }
             for (int jRule = iRule + 1; jRule < rules.size(); jRule++) {
-                OTPRule ruleY = rules.get(jRule);
+                ROTPSchema ruleY = rules.get(jRule);
                 if (ruleX.isEquivalentTo(ruleY)) {
                     throw new POCException("found doubled rule: " + ruleX.getSchema());
                 }
@@ -99,7 +100,6 @@ public class OTPGenerator {
     }
 
     //TODO filter by score too
-    //TODO sometimes it should generate a full random OTP. The frequency must be configurable: it improve the defence from brute force attack
     public ROTP generate(int minScore) throws POCException {
 
         if (rand.nextDouble() > rotpFrequency) {
@@ -108,7 +108,7 @@ public class OTPGenerator {
         }
 
         int iRule = rand.nextInt(rules.size());
-        OTPRule rule = rules.get(iRule);
+        ROTPSchema rule = rules.get(iRule);
 
         int nDigits = rule.getDigits();
 
@@ -158,7 +158,7 @@ public class OTPGenerator {
         return new ROTP(otp, rule.getParts(), rule.getSchema());
     }
 
-    public void overrideRules(List<OTPRule> rules) throws POCException, NoSuchAlgorithmException {
+    public void overrideRules(List<ROTPSchema> rules) throws POCException, NoSuchAlgorithmException {
         if (rules == null || rules.isEmpty()) {
             throw new POCException("Invalid rule list");
         }
@@ -174,7 +174,7 @@ public class OTPGenerator {
         if (verbose) {
             BasicConsoleLogger.get().info("start counting rule's otp...");
         }
-        for (OTPRule rule : rules) {
+        for (ROTPSchema rule : rules) {
             int max = rule.getMaxOtp() + 1;
             for (int iOtp = 0; iOtp < max; iOtp++) {
                 String candidateOtp = String.format("%0" + rule.getLength() + "d", iOtp);
@@ -195,8 +195,8 @@ public class OTPGenerator {
         return nOtp;
     }
 
-    private OTPRule findFirstMatchingRule(String candidateOtp) throws POCException {
-        for (OTPRule rule : rules) {
+    private ROTPSchema findFirstMatchingRule(String candidateOtp) throws POCException {
+        for (ROTPSchema rule : rules) {
             if (rule.isMatching(candidateOtp)) {
                 return rule;
             }

@@ -5,9 +5,9 @@
  */
 import claudiosoft.pocbase.BasicConsoleLogger;
 import claudiosoft.pocbase.POCException;
-import static claudiosoft.readableotp.OTPConstants.*;
-import claudiosoft.readableotp.OTPGenerator;
-import claudiosoft.readableotp.OTPRule;
+import static claudiosoft.readableotp.ROTPConstants.*;
+import claudiosoft.readableotp.ROTPGenerator;
+import claudiosoft.readableotp.ROTPSchema;
 import claudiosoft.readableotp.ROTP;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -19,24 +19,24 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestGeneration extends BaseJUnitTest {
 
-    private OTPGenerator gen;
+    private ROTPGenerator gen;
 
-    private OTPGenerator getGenerator() throws POCException, NoSuchAlgorithmException {
+    private ROTPGenerator getGenerator() throws POCException, NoSuchAlgorithmException {
         if (gen == null) {
-            gen = new OTPGenerator();
+            gen = new ROTPGenerator();
         }
         return gen;
     }
 
     @Test
     public void t01GenerationRules() throws POCException, NoSuchAlgorithmException {
-        OTPGenerator gen = new OTPGenerator(new OTPRule("xxxxxx", "0,9", PART_2));
+        ROTPGenerator gen = new ROTPGenerator(new ROTPSchema("xxxxxx", "0,9", PART_2));
         BasicConsoleLogger.get().info(gen.generate().get());
 
-        gen = new OTPGenerator(new OTPRule("xxxyyy", "0,9", "!", PART_2));
+        gen = new ROTPGenerator(new ROTPSchema("xxxyyy", "0,9", "!", PART_2));
         BasicConsoleLogger.get().info(gen.generate().get());
 
-        gen = new OTPGenerator(new OTPRule("xxyxxy", "0,9", "!", PART_2));
+        gen = new ROTPGenerator(new ROTPSchema("xxyxxy", "0,9", "!", PART_2));
         BasicConsoleLogger.get().info(gen.generate().get());
     }
 
@@ -44,7 +44,7 @@ public class TestGeneration extends BaseJUnitTest {
     public void t01RuleInvalidSchema() throws POCException, NoSuchAlgorithmException {
         boolean done = false;
         try {
-            new OTPGenerator(new OTPRule("kxxxxx", "0,9", PART_2));
+            new ROTPGenerator(new ROTPSchema("kxxxxx", "0,9", PART_2));
         } catch (POCException ex) {
             done = true;
         }
@@ -55,7 +55,7 @@ public class TestGeneration extends BaseJUnitTest {
     public void t01RuleInvalidLen() throws POCException, NoSuchAlgorithmException {
         boolean done = false;
         try {
-            new OTPGenerator(new OTPRule("xyxxx", "0,9", PART_2));
+            new ROTPGenerator(new ROTPSchema("xyxxx", "0,9", PART_2));
         } catch (POCException ex) {
             done = true;
         }
@@ -64,9 +64,9 @@ public class TestGeneration extends BaseJUnitTest {
 
     @Test
     public void t02OTPMatchRule() throws InterruptedException, IOException, POCException {
-        Assert.assertTrue(!new OTPRule("xxyxxy", "0,9", "!", PART_2).isMatching("100100"));
-        Assert.assertTrue(!new OTPRule("xxyxxy", "0,9", "!", PART_2).isMatching("11110"));
-        Assert.assertTrue(new OTPRule("xxyxxy", "0,9", "!", PART_2).isMatching("110110"));
+        Assert.assertTrue(!new ROTPSchema("xxyxxy", "0,9", "!", PART_2).isMatching("100100"));
+        Assert.assertTrue(!new ROTPSchema("xxyxxy", "0,9", "!", PART_2).isMatching("11110"));
+        Assert.assertTrue(new ROTPSchema("xxyxxy", "0,9", "!", PART_2).isMatching("110110"));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class TestGeneration extends BaseJUnitTest {
 
     @Test
     public void t04BruteForce() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
-        OTPGenerator brute = getGenerator();
+        ROTPGenerator brute = getGenerator();
         final int maxAttemps = 3; // because of ROTP are simpler to write
         int trial = 0;
         boolean bruted = false;
@@ -107,7 +107,7 @@ public class TestGeneration extends BaseJUnitTest {
 
     @Test
     public void t05WrapToNext() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
-        OTPGenerator gen = new OTPGenerator(new OTPRule("xxxyyy", "0,9", "!", PART_2));
+        ROTPGenerator gen = new ROTPGenerator(new ROTPSchema("xxxyyy", "0,9", "!", PART_2));
         Assert.assertTrue(gen.wrapToNext("111221").get().equals("111 222"));
         Assert.assertTrue(gen.wrapToNext("999999").get().equals("000 111"));
     }
@@ -130,8 +130,8 @@ public class TestGeneration extends BaseJUnitTest {
 
     @Test
     public void t06BruteForceWithFreq() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
-        OTPGenerator bruteGen = getGenerator();
-        bruteGen.setRotpFrequency(0.7);
+        ROTPGenerator bruteGen = getGenerator();
+        bruteGen.setRotpFrequency(0.75);
         final int maxAttemps = 3; // because of ROTP are simpler to write
         int trial = 0;
         boolean bruted = false;

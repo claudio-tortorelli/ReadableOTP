@@ -1,10 +1,11 @@
 package claudiosoft.readableotp;
 
 /**
+ * ReadableOTP
  *
- * @author Claudio
+ * @author Claudio Tortorelli
  */
-public class OTPConstants {
+public class ROTPConstants {
 
     public static final int SCORE_0 = 0;
     public static final int SCORE_1 = 1;
