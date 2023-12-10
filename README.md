@@ -81,6 +81,19 @@ Il meccanismo dovrà includere anche
 Mentre sono fuori dall'obiettivo le gestione ottimizzata e performante e le eventuali accortezze per salvare e ricaricare gli schemi.
 
 ## Implementazione <a name="Implementazione"></a>
+La rappresentazione degli schemi di <b>ReadableOTP</b> è data dall'oggetto ROTPSchema il quale include lo schema di rappresentazione
+(basato sulle ripetizioni di generiche variabili xyz), le regole per determinare il dominio delle variabili, il numero di parti in cui i relativi ROTP
+devono essere rappresentati e lo score complessivo.
+Il numero di cifre differenti incluse nell'RTOP va da 1 a 3. La principale funzione offerta è quella del metodo isMatching() che consente di verificare 
+se una generica stringa numerica rientra nel dominio degli ROTP rappresentabili tramite lo schema.
+In particolare si verifica se tra schema e candidato sono compatibili
+- il numero di cifre diverse 
+- la lunghezza 
+- le regole dello schema con cui si determinano le cifre
+- la sequenza delle cifre
+
+Al fine di identificare uno schema in modo univoco si calcola il suo hash sha256 della concatenazione dello schema e delle rispettive regole.
+Sarebbe prevista, ma al momento non implementata, una funzione di validazione.
 
 ## Conclusione e TODO <a name="Conclusione"></a>
 
