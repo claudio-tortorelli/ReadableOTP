@@ -95,7 +95,7 @@ In particolare si verifica se tra schema e candidato sono compatibili
 Al fine di identificare uno schema in modo univoco si calcola il suo hash sha256 della concatenazione dello schema e delle rispettive regole.
 Sarebbe prevista, ma al momento non implementata, una funzione di validazione.
 
-Il cuore del POC è invece il generator.
+Il cuore del POC è invece il generatore di readable OTP <b>ROTPGenerator</b>. Il generator include tra i membri una lista di ROTPSchema che può essere inizializzata nel costruttore (con un set predefinito di schemi) oppure successivamente.
 
 ## Conclusione e TODO <a name="Conclusione"></a>
 
