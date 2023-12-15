@@ -95,7 +95,14 @@ In particolare si verifica se tra schema e candidato sono compatibili
 Al fine di identificare uno schema in modo univoco si calcola il suo hash sha256 della concatenazione dello schema e delle rispettive regole.
 Sarebbe prevista, ma al momento non implementata, una funzione di validazione.
 
-Il cuore del POC è invece il generatore di readable OTP <b>ROTPGenerator</b>. Il generator include tra i membri una lista di ROTPSchema che può essere inizializzata nel costruttore (con un set predefinito di schemi) oppure successivamente.
+Il cuore del POC è invece il generatore di readable OTP <b>ROTPGenerator</b>. Il generator include tra i membri una lista di ROTPSchema che può essere inizializzata nel costruttore (con un set predefinito di schemi) oppure successivamente col metodo ```overrideRules()``` .
+Il costruttore (e ugualmente il metodo overrideRules) procede ad eseguire una validazione degli schemi. La validazione consiste in:
+- verifica del numero di digit dello schema
+- verifica della consistenza del pattern dello schema
+- verifica dell'assenza di regole duplicate
+
+Al termine della validazione viene inizializzato l'array degli ROTP poi popolato chiamando il metodo ```countMax()```.
+CountMax in modo molto grezzo provvede a scorrere tutti i possibili OTP per ogni schema presente e a verificare se quello corrente è ammissibile dallo schema in esame. Quando un OTP è ammesso viene inserito nell'array degli ROTP. Questa operazione richiede tempo all'inizializzazione del generator.
 
 ## Conclusione e TODO <a name="Conclusione"></a>
 
