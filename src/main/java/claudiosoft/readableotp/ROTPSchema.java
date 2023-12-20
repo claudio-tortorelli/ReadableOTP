@@ -272,4 +272,16 @@ public class ROTPSchema {
         return new String(BasicUtils.getSHA256(input));
     }
 
+    public int getNumberOfGenerableROTP(boolean verbose) {
+        int nCount = 0;
+        int max = getMaxOtp() + 1;
+        for (int iOtp = 0; iOtp < max; iOtp++) {
+            String candidateOtp = String.format("%0" + getLength() + "d", iOtp);
+            if (isMatching(candidateOtp, verbose)) {
+                nCount++;
+            }
+        }
+        return nCount;
+    }
+
 }
