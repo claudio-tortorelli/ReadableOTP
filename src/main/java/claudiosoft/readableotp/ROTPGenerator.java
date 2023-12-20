@@ -18,9 +18,8 @@ public class ROTPGenerator {
 
     private List<ROTPSchema> schemas;
     private final Random rand;
-
-    private static String[] rOtpArray;
     private double rotpFrequency; // (0,1)
+    private final int MAX_OTP = (int) pow(10, ROTPConstants.EXPECTED_DIGITS);
 
     public ROTPGenerator() throws POCException, NoSuchAlgorithmException {
         this(null);
@@ -90,8 +89,6 @@ public class ROTPGenerator {
             //TODO improving x y z rule check verifying their domain consistency
         }
         BasicConsoleLogger.get().debug("validation done...");
-        rOtpArray = new String[(int) pow(10, ROTPConstants.EXPECTED_DIGITS)];
-        countMax(false);
     }
 
     public ROTP generate() throws POCException {
@@ -102,7 +99,7 @@ public class ROTPGenerator {
     public ROTP generate(int minScore) throws POCException {
 
         if (rand.nextDouble() > rotpFrequency) {
-            String otp = String.format("%0" + ROTPConstants.EXPECTED_DIGITS + "d", rand.nextInt((int) pow(10, ROTPConstants.EXPECTED_DIGITS)));
+            String otp = String.format("%0" + ROTPConstants.EXPECTED_DIGITS + "d", rand.nextInt(MAX_OTP));
             return new ROTP(otp, PART_2);
         }
 
@@ -173,20 +170,9 @@ public class ROTPGenerator {
         if (verbose) {
             BasicConsoleLogger.get().info("start counting rule's otp...");
         }
-        for (ROTPSchema rule : schemas) {
-            int max = rule.getMaxOtp() + 1;
-            for (int iOtp = 0; iOtp < max; iOtp++) {
-                String candidateOtp = String.format("%0" + rule.getLength() + "d", iOtp);
-                if (rule.isMatching(candidateOtp, verbose)) {
-                    rOtpArray[iOtp] = candidateOtp;
-                }
-            }
-        }
         int nOtp = 0;
-        for (String rotp : rOtpArray) {
-            if (rotp != null && !rotp.isEmpty()) {
-                nOtp++;
-            }
+        for (ROTPSchema rule : schemas) {
+            nOtp += rule.getNumberOfGenerableROTP(verbose);
         }
         if (verbose) {
             BasicConsoleLogger.get().info("end counting rule's otp: " + nOtp);
@@ -205,14 +191,20 @@ public class ROTPGenerator {
 
     public ROTP wrapToNext(String otp) throws POCException {
         int lookOtp = Integer.parseInt(otp);
-        for (int i = lookOtp; i < rOtpArray.length; i++) {
-            if (rOtpArray[i] != null && !rOtpArray[i].isEmpty()) {
-                return new ROTP(rOtpArray[i], findFirstMatchingRule(rOtpArray[i]));
+        for (int i = lookOtp; i < MAX_OTP; i++) {
+            String candidateOtp = String.format("%0" + ROTPConstants.EXPECTED_DIGITS + "d", i);
+            try {
+                return new ROTP(candidateOtp, findFirstMatchingRule(candidateOtp));
+            } catch (POCException e) {
+
             }
         }
         for (int i = 0; i < lookOtp; i++) {
-            if (rOtpArray[i] != null && !rOtpArray[i].isEmpty()) {
-                return new ROTP(rOtpArray[i], findFirstMatchingRule(rOtpArray[i]));
+            String candidateOtp = String.format("%0" + ROTPConstants.EXPECTED_DIGITS + "d", i);
+            try {
+                return new ROTP(candidateOtp, findFirstMatchingRule(candidateOtp));
+            } catch (POCException e) {
+
             }
         }
         throw new POCException("Unable to match any ROTP");

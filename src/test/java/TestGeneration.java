@@ -90,25 +90,22 @@ public class TestGeneration extends BaseJUnitTest {
     }
 
     @Test
-    public void t04BruteForce() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
-        ROTPGenerator brute = getGenerator();
-        final int maxAttemps = 3; // because of ROTP are simpler to write
-        int trial = 0;
-        boolean bruted = false;
-        while (true) {
-            ROTP otp = getGenerator().generate();
-            for (int i = 0; i < maxAttemps; i++) {
+    public void t04BruteForceAttack() throws InterruptedException, IOException, POCException, NoSuchAlgorithmException {
+        final int MAX = 100;
+        int _trial = 0;
+        for (int i = 0; i < MAX; i++) {
+            ROTPGenerator brute = getGenerator();
+            int trial = 0;
+            while (true) {
+                ROTP otp = getGenerator().generate();
                 if (brute.generate().get().equals(otp.get())) {
-                    bruted = true;
+                    _trial += trial;
                     break;
                 }
                 trial++;
             }
-            if (bruted) {
-                break;
-            }
         }
-        BasicConsoleLogger.get().info(String.format("OTP bruted after %d trials and %d ban", trial, (trial / maxAttemps)));
+        BasicConsoleLogger.get().info(String.format("OTP bruted after %.2f trials", _trial / (float) MAX));
     }
 
     @Test
@@ -141,27 +138,21 @@ public class TestGeneration extends BaseJUnitTest {
 
         ROTPGenerator bruteGen = new ROTPGenerator();
         bruteGen.setRotpFrequency(0.75);
-        final int maxAttemps = 3; // because of ROTP are simpler to write
-        int trial = 0;
-        boolean bruted = false;
-        while (true) {
-            ROTP otp = gen.generate();
-            BasicConsoleLogger.get().info("ROTP: " + otp.get());
-            for (int i = 0; i < maxAttemps; i++) {
-                String otpTrial = bruteGen.generate().get();
-                BasicConsoleLogger.get().info(" - trial: " + otpTrial);
-                if (otpTrial.equals(otp.get())) {
-                    bruted = true;
+
+        final int MAX = 100;
+        int _trial = 0;
+        for (int i = 0; i < MAX; i++) {
+            int trial = 0;
+            while (true) {
+                ROTP otp = gen.generate();
+                if (bruteGen.generate().get().equals(otp.get())) {
+                    _trial += trial;
                     break;
                 }
                 trial++;
             }
-            if (bruted) {
-                break;
-            }
-            BasicConsoleLogger.get().info("Ban!\n");
         }
-        BasicConsoleLogger.get().info(String.format("OTP bruted after %d trials and %d ban", trial, (trial / maxAttemps)));
+        BasicConsoleLogger.get().info(String.format("OTP bruted after %.2f trials", _trial / (float) MAX));
     }
 
     @Test
