@@ -39,26 +39,29 @@ Inoltre lo schema comprende anche la suddivisione dell'ROTP in parti, ovvero in 
 Di seguito gli schemi di ROTP che ho utilizzato nel mio POC
 
 ```
-new OTPRule("xxxxxx", "0,9", PART_2, SCORE_NONE));
-new OTPRule("xxxyyy", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xxyxxy", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xyyxyy", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xyxxyx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xxyyxx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xyyyyx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xxxxxy", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xxxxyx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xxxyxx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xxyxxx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xyxxxx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("yxxxxx", "0,9", "!", PART_2, SCORE_NONE));
-new OTPRule("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE));
-new OTPRule("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE));
-new OTPRule("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE));
-new OTPRule("xxxxyy", "0,9", "!", PART_3, SCORE_NONE));
-new OTPRule("xxyyyy", "0,9", "!", PART_3, SCORE_NONE));
-new OTPRule("xyxyxy", "0,9", "!", PART_3, SCORE_NONE));
-new OTPRule("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE));
+new ROTPSchema("xxxxxx", "0,9", PART_2, SCORE_NONE)
+new ROTPSchema("xxxyyy", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xxyxxy", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xyyxyy", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xyxxyx", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xxyyxx", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xyyyyx", "0,9", "!", PART_2, SCORE_NONE)
+
+new ROTPSchema("xxxxxy", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xxxxyx", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xxxyxx", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xxyxxx", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xyxxxx", "0,9", "!", PART_2, SCORE_NONE)
+new ROTPSchema("yxxxxx", "0,9", "!", PART_2, SCORE_NONE)
+
+new ROTPSchema("xyzxyz", "0,9", "!", "!", PART_2, SCORE_NONE)
+new ROTPSchema("xyzxyz", "0,7", "+1", "+1", PART_2, SCORE_NONE)
+new ROTPSchema("xyzxyz", "2,9", "-1", "-1", PART_2, SCORE_NONE)
+
+new ROTPSchema("xxxxyy", "0,9", "!", PART_3, SCORE_NONE)
+new ROTPSchema("xxyyyy", "0,9", "!", PART_3, SCORE_NONE)
+new ROTPSchema("xyxyxy", "0,9", "!", PART_3, SCORE_NONE)
+new ROTPSchema("xxyyzz", "0,9", "!", "!", PART_3, SCORE_NONE)
 ```
 Come si può notare ho previsto anche un punteggio attribuibile ad ogni schema per un eventuale filtro.
 Una ipotesi può essere la seguente
