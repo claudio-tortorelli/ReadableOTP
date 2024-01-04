@@ -7,6 +7,8 @@
 
 <b>Disclaimer</b>: it's a POC so don't use it in commercial or critical applications
 
+Note: this POC can build as submodule of the parent https://github.com/claudio-tortorelli/POCGarden
+
 ## Sinossi <a name="Sinossi"></a>
 L'utilizzo di OTP, One Time Password, ovvero password a tempo spendibili una volta solamente, è ormai diventato molto comune.
 Le tecnologie di autenticazione a 2 fattori si basano spesso sulla ricezione di sms o notifiche con degli OTP oppure sulla loro generazione tramite appositi token sincronizzati.
