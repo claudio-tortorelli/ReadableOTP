@@ -5,6 +5,8 @@
 3. [Implementazione](#Implementazione)
 4. [Conclusione e TODO](#Conclusione)
 
+<b>Disclaimer</b>: it's a POC so don't use it in commercial or critical applications
+
 ## Sinossi <a name="Sinossi"></a>
 L'utilizzo di OTP, One Time Password, ovvero password a tempo spendibili una volta solamente, è ormai diventato molto comune.
 Le tecnologie di autenticazione a 2 fattori si basano spesso sulla ricezione di sms o notifiche con degli OTP oppure sulla loro generazione tramite appositi token sincronizzati.
