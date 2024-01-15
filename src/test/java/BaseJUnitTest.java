@@ -13,7 +13,6 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 /**
- * Base class for all esecurity tests:
  *
  * It verifies that FixMethodOrder annotation is defined into derived test. The
  * test fail otherwise
